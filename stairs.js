@@ -8,6 +8,8 @@
 // For example a 3 stepped stairs will have 4 combinations:
 // 1st=1+1+1 2nd=2+1 3rd=1+2 4=3
 
+// Another pull request
+
 const solution = (n) => {
   // Check minimum cases
   const steps = [1];
