@@ -17,11 +17,7 @@ class Node: CustomDebugStringConvertible {
         self.parent = parent
     }
     var debugDescription: String {
-        return
-               """
-                Value \(value)
-                 / left: \(left?.debugDescription ?? "")  \ right:  \(right?.debugDescription ?? "")
-               """
+        return "V \(value) L\(left?.value ?? -1) R\(right?.value ?? -1)"
     }
 }
 
@@ -30,50 +26,84 @@ func solution(arr: [Int]) -> String {
         return ""
     }
     
-    var nodes = arr
-    let root = Node(value: nodes.removeFirst())!
-    buildTree(nodesValues: &nodes, parent: root)
-    debugPrint("root value \(root.value) left: \(root.left?.value ?? 0) right: \(root.right?.value ?? 0)")
-    debugPrint("Tree: \(root.debugDescription)")
-    return "Left"
+    guard let root = buildTree(nodesValues: arr) else {
+        return ""
+    }
+    debugPrint("Tree root: \(root.debugDescription)")
+    let left = sumTree(from: root.left)
+    let right = sumTree(from: root.right)
+    debugPrint("Left is \(left) right is \(right)")
+    if left > right {
+        return "Left"
+    } else if right > left {
+        return "Right"
+    } else {
+        return ""
+    }
 }
 
-func buildTree(nodesValues: inout [Int], parent: Node ) -> Node? {
-    guard !nodesValues.isEmpty, let node = Node(value: nodesValues.removeFirst(), parent: parent) else {
+func buildTree(nodesValues: [Int]) -> Node? {
+    var nodesCreated: [Node] = []
+    guard let nodeValue = nodesValues.first, let root = Node(value: nodeValue) else {
         return nil
     }
-    debugPrint("Built node value \(node.value) parent:\(parent.value) nodes left \(nodesValues)")
     
-    node.left = createNodeNextValue(nodesValues: &nodesValues, parent: parent)
-    node.right = createNodeNextValue(nodesValues: &nodesValues, parent: parent)
-    debugPrint("Nodes at node \(node.value): \(nodesValues)")
-    
+    nodesCreated.append(root)
+    var valuesIndex = 1
+    while (!nodesCreated.isEmpty) {
+        let parent = nodesCreated.removeFirst()
+        if (valuesIndex < nodesValues.count) {
+            let valueLeft = nodesValues[valuesIndex]
+            valuesIndex += 1 // Next pos
+            parent.left = Node(value: valueLeft, parent: parent)
+            if let left = parent.left {
+                nodesCreated.append(left)
+            }
+        }
+        if (valuesIndex < nodesValues.count) {
+            let valueRight = nodesValues[valuesIndex]
+            valuesIndex += 1 // Next pos
+            parent.right = Node(value: valueRight, parent: parent)
+            if let right = parent.right {
+                nodesCreated.append(right)
+            }
+        }
+
+        debugPrint("Built parent node value \(parent.value) left:\(parent.left?.value ?? -1) right \(parent.right?.value ?? -1) nodesCreated \(nodesCreated)")
+    }
+        
     // Navigate next level
-    
-    return node
+    return root
 }
 
-func loadLevel(nodesValues: inout [Int], root: Node) {
-    var levelNodes = [root]
-    repeat {
-        var newNodes: [Node] = []
-        levelNodes.forEach( { node in
-            if let left = createNodeNextValue(nodesValues: &nodesValues, parent: node) {
-                newNodes.append(left)
-            }
-            if let right = createNodeNextValue(nodesValues: &nodesValues, parent: node) {
-                newNodes.append(right)
-            }
-        })
-        levelNodes = newNodes
-    } while(!levelNodes.isEmpty)
-}
-
-func createNodeNextValue(nodesValues: inout [Int], parent: Node ) -> Node? {
-    guard !nodesValues.isEmpty else {
-        return nil
+func printTree(from: Node?) {
+    guard let from = from else {
+        return
     }
-    return Node(value: nodesValues.removeFirst(), parent: parent)
+    var nodesToPrint: [Node] = Array([from])
+    while (!nodesToPrint.isEmpty) {
+        let node = nodesToPrint.removeFirst()
+        debugPrint(node.debugDescription)
+        if let left = node.left {
+            nodesToPrint.append(left)
+        }
+        if let right = node.right {
+            nodesToPrint.append(right)
+        }
+    }
 }
 
-
+func sumTree(from: Node?) -> Int {
+    guard let from = from else {
+        return 0
+    }
+    var leftTotal = 0
+    if let left = from.left {
+        leftTotal = sumTree(from: left)
+    }
+    var rightTotal = 0
+    if let right = from.right {
+        rightTotal = sumTree(from: right)
+    }
+    return from.value + leftTotal + rightTotal
+}
