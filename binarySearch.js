@@ -12,67 +12,59 @@
 
 class Solution {
 
-  binarysearchRecursive(arr, n, k) {
-    if (arr.length === 1) {
-      console.debug(`length 1 = [${arr}] == k ?`);
-      return arr[0] === k ? 0 : -1;
-    }
-
-    let middle = Math.floor((arr.length) / 2);
-    console.debug(`Chequeando ${arr} middle pos ${middle} = ${arr[middle]}`);
-    let posFound = -1;
-    if (arr[middle] === k) {
-      console.debug(`Encontrado en posición ${middle}`);
-      posFound = middle;
-    } else if (arr[middle] > k) {
-      posFound = this.binarysearch(arr.slice(0, middle), n, k);
-    } else {
-      const found = this.binarysearch(arr.slice(middle), n, k);
-      if (found !== -1) {
-        posFound = found + middle;
-      }
-    }
-    if (posFound === -1) {
+  binarysearchRecursive(arr, target, start, end) {
+    if (arr.length === 0) {
       return -1;
     }
-    console.log(`pos found ${posFound} middle ${middle}`);
-    return posFound;
+
+    if (start > end) {
+      return -1;
+    }
+
+    let middle = Math.floor((start + end) / 2);
+    // console.debug(`Chequeando ${arr} middle pos ${middle} = ${arr[middle]}`);
+    if (arr[middle] === target) {
+      // console.debug(`Encontrado en posición ${middle}`);
+      return middle;
+    } else if (target < arr[middle]) {
+      // Target could be in the first half
+      return this.binarysearchRecursive(arr, target, start, middle - 1);
+    } else {
+      // Target could be in the second half
+      return this.binarysearchRecursive(arr, target, middle + 1, end);
+    }
   }
 
-  binarysearchIterative(arr, n, k) {
+  binarysearchIterative(arr, target) {
     let startIndex = 0;
-    let endIndex = n - 1;
-    let foundIndex = -1;
+    let endIndex = arr.length - 1;
 
-    while (foundIndex === -1 && startIndex < endIndex) {
-      const middleIndex = Math.floor((endIndex - startIndex) / 2) + startIndex;
+    while (startIndex <= endIndex) {
+      const middleIndex = Math.floor((endIndex + startIndex) / 2);
       const middleValue = arr[middleIndex];
 
       //  console.log(`checking mid ${middleIndex}[${arr[middleIndex]}] == ${k}`);
-      if (middleValue === k) {
-        foundIndex = middleIndex;
-      } else if (middleValue > k) {
+      if (middleValue === target) {
+        return middleIndex;
+      } else if (middleValue > target) {
         // k is before middleIndex, or does not exist.
-        endIndex = middleIndex;
+        endIndex = middleIndex - 1;
       } else {
         // k is after middleIndex, or does not exist.
-        startIndex = middleIndex;
-        if (startIndex + 1 === endIndex) {
-          foundIndex = arr[endIndex] === k ? endIndex : -1;
-          startIndex = endIndex;
-        }
+        startIndex = middleIndex + 1;
       }
-      // console.log(`Moved to start ${startIndex}[${arr[startIndex]}] mid ${middleIndex}[${arr[middleIndex]}] end ${endIndex}[${arr[endIndex]}], arr is ${arr}`);
     }
 
-    return foundIndex;
+    return -1;
   }
 }
 
-const array1 = [1, 2, 5, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 22, 23, 24, 26, 28, 31, 33, 34, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48, 49, 50, 54, 55, 59, 60, 62, 63, 64, 65, 66, 68, 69, 70, 71, 72, 73, 75, 77, 79, 80, 82, 86, 87, 88, 92, 93, 94, 96, 97, 98, 99, 100];
-const array2 = [1, 2, 5, 8, 9, 10];
-const array3 = [0, 1];
-const array = array1;
-const numberToFind = 42;
+const test1 = [[1, 3, 5, 7], 1];
+const test2 = [[1, 2, 5, 8, 9, 10], 10];
+const test3 = [[1], 1];
+const tests = [test1, test2, test3];
 const sol = new Solution();
-console.log(`Result ${sol.binarysearchIterative(array, array.length, numberToFind)}`);
+tests.forEach(test => {
+  console.log(`Array: [${test[0]}] target: ${test[1]} Iterative ${sol.binarysearchIterative(test[0], test[1])}`);
+  console.log(`Array: [${test[0]}] target: ${test[1]} Recursive ${sol.binarysearchRecursive(test[0], test[1], 0, test[0].length - 1)}`);
+});
