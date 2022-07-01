@@ -16,4 +16,4 @@ class Solution {
 
 let sol = Solution()
 let num = 0b0110
-print("Number of ones in \(String(num, radix: 2)) \(sol.hammingWeight(num))")
+print("Number of ones (hammingWeight) in \(String(num, radix: 2)) \(sol.hammingWeight(num))")
