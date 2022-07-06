@@ -19,4 +19,31 @@ Constraints:
  */
 var subsets = function (nums) {
 
+    let subsets = [];
+
+    function dfs(index, subset) {
+        if (index === nums.length) {
+            subsets.push([...subset]);
+            return;
+        }
+        // Add the value
+        subset.push(nums[index]);
+        dfs(index + 1, subset);
+        subset.pop();
+
+        // Do not add anything
+        dfs(index + 1, subset);
+
+        // If we copy the subset to add the value, takes more time
+        // const copy = [...subset];
+        // copy.push(nums[index]);
+        // dfs(index + 1, copy);
+    }
+
+    dfs(0, []);
+
+    return subsets;
 };
+
+const array1 = [1, 2, 3];
+console.log(`Test with ${subsets(array1).join('|')}]`);
