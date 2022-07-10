@@ -35,7 +35,7 @@ Constraints:
     At most 2 * 105 calls will be made to get and put.
 */
 
-class DoubleList {
+class Node {
   value;
   prev;
   next;
@@ -53,11 +53,6 @@ class DoubleList {
  */
 class LRUCache {
 
-  capacityLeft;
-  keysPointerDict;
-  mostUsed;
-  leastUsed;
-
   constructor(capacity) {
     this.capacityLeft = capacity;
     this.keysPointerDict = [];
@@ -72,8 +67,7 @@ class LRUCache {
   get(key) {
     const node = this.keysPointerDict[key];
     if (!node) {
-      // Node is not in the cache
-      return -1;
+      return -1;       // Node is not in the cache
     }
     this.setAsMRU(node);
 
@@ -86,29 +80,20 @@ class LRUCache {
    * @return {void}
    */
   put(key, value) {
-    let node;
-    if (this.capacityLeft > 0) {
-      // Cache is not full
-      node = this.createNode(key, value);
-    } else {
-      node = this.getFromList(key, value);
+    let node = this.keysPointerDict[key];
+    if (!node) {
+      if (this.capacityLeft === 0) {
+        node = this.removeLRU(); // Cache is full, reuse last one
+      } else {
+        node = this.createNode(value);
+      }
+    } else if (node === this.leastUsed) {
+      node = this.removeLRU();
     }
     this.setAsMRU(node);
     this.updateNodeAndHash(key, value, node);
   }
 
-  getFromList(key, value) {
-    // Is the node already in the list? The key exists in the hashmap
-    let currentNode = this.keysPointerDict[key];
-    if (currentNode) {
-      // The node is in the list, detached first
-      this.detach(currentNode);
-    } else {
-      // The node is not in the list, reused LRU
-      currentNode = this.unlinkLRU();
-      delete this.keysPointerDict[currentNode.key]; // Delete evictied node from the hash    
-    }
-  }
 
   updateNodeAndHash(key, value, node) {
     // Update hashmap and node value
@@ -121,13 +106,17 @@ class LRUCache {
     if (this.mostUsed === node) {
       return;
     }
+    if (this.mostUsed == null) {
+      this.mostUsed = node;
+      return;
+    }
 
-    this.detach(node);
+    if (this.leastUsed)
 
+      this.detach(node);
     // Move it to the first place
-    node.prev = null;
     node.next = this.mostUsed;
-    if (this.mostUsed.prev) this.mostUsed.prev = node;
+    this.mostUsed.prev = node;
     this.mostUsed = node;
   }
 
@@ -136,24 +125,29 @@ class LRUCache {
     const nextNode = node.next;
     if (prevNode) prevNode.next = nextNode;
     if (nextNode) nextNode.prev = prevNode;
+    node.prev = null;
+    node.next = null;
   }
 
-
   // Get the LRU node and return it updating the list to the next least used
-  unlinkLRU() {
+  removeLRU() {
+    if (this.leastUsed == this.mostUsed) {
+      return;
+    }
+
     const nodeLRU = this.leastUsed;
-    const beforeLast = this.nodeLRU.prev;
-    beforeLast.next = null;
+    const beforeLeast = nodeLRU.prev;
+    beforeLeast.next = null;
     nodeLRU.prev = null;
-    this.leastUsed = beforeLast;
+    this.leastUsed = beforeLeast;
     return nodeLRU;
   }
 
   // The size of the list is below the limit
-  createNode(key, value) {
+  createNode(value) {
     this.capacityLeft -= 1;
     // New node next is the first in the list
-    const node = new DoubleList(value);
+    const node = new Node(value);
 
     if (this.leastUsed === null) {
       // List is empty, first node added
