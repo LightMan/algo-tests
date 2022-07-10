@@ -36,16 +36,12 @@ Constraints:
 */
 
 class Node {
-  value;
-  prev;
-  next;
-
-  constructor(value, next, prev) {
-    this.value = value;
-    this.next = next || null;
-    this.prev = prev || null;
+  constructor() {
+    this.key = undefined;
+    this.value = undefined;
+    this.prev = null;
+    this.next = null;
   }
-
 }
 
 /**
@@ -82,75 +78,72 @@ class LRUCache {
   put(key, value) {
     let node = this.keysPointerDict[key];
     if (!node) {
+      // Node is not in the list, add it
       if (this.capacityLeft === 0) {
-        node = this.removeLRU(); // Cache is full, reuse last one
+        node = this.removeLRU(); // Cache is full, reuse the last one
       } else {
-        node = this.createNode(value);
+        node = this.createNode();
       }
-    } else if (node === this.leastUsed) {
-      node = this.removeLRU();
     }
-    this.setAsMRU(node);
     this.updateNodeAndHash(key, value, node);
+    this.setAsMRU(node);
   }
 
-
+  // Update hashmap and node value
   updateNodeAndHash(key, value, node) {
-    // Update hashmap and node value
-    this.keysPointerDict[key] = node;
+    node.key = key;
     node.value = value;
+    this.keysPointerDict[key] = node;
   }
 
   setAsMRU(node) {
+    if (this.mostUsed === null) {
+      this.mostUsed = node;
+    }
+    if (this.leastUsed === null) {
+      this.leastUsed = node;
+    }
+
     // Update the MRU
     if (this.mostUsed === node) {
       return;
     }
-    if (this.mostUsed == null) {
-      this.mostUsed = node;
-      return;
+
+    // This was the last node, not anymore
+    if (node === this.leastUsed) {
+      this.leastUsed = node.prev; // we know that node is not the mostUsed at this point
     }
 
-    if (this.leastUsed)
+    // Detach the node form the list
+    if (node.prev) node.prev.next = node.next;
+    if (node.next) node.next.prev = node.prev;
 
-      this.detach(node);
-    // Move it to the first place
-    node.next = this.mostUsed;
+    // Set it as most used
     this.mostUsed.prev = node;
+    node.next = this.mostUsed;
     this.mostUsed = node;
-  }
-
-  detach(node) {
-    const prevNode = node.prev;
-    const nextNode = node.next;
-    if (prevNode) prevNode.next = nextNode;
-    if (nextNode) nextNode.prev = prevNode;
-    node.prev = null;
-    node.next = null;
   }
 
   // Get the LRU node and return it updating the list to the next least used
   removeLRU() {
-    if (this.leastUsed == this.mostUsed) {
-      return;
-    }
-
     const nodeLRU = this.leastUsed;
     const beforeLeast = nodeLRU.prev;
-    beforeLeast.next = null;
+    if (beforeLeast) beforeLeast.next = null;
     nodeLRU.prev = null;
     this.leastUsed = beforeLeast;
+    delete this.keysPointerDict[nodeLRU.key];
     return nodeLRU;
   }
 
   // The size of the list is below the limit
-  createNode(value) {
+  createNode() {
     this.capacityLeft -= 1;
     // New node next is the first in the list
-    const node = new Node(value);
+    const node = new Node();
 
     if (this.leastUsed === null) {
       // List is empty, first node added
+      this.mostUsed = node;
       this.leastUsed = node;
     }
     return node;
@@ -164,8 +157,8 @@ class LRUCache {
  * obj.put(key,value)
  */
 
-const commands = ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"];
-const args = [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]];
+const commands = ["LRUCache", "get", "get", "put", "get", "put", "put", "put", "put", "get", "put"];
+const args = [[1], [6], [8], [12, 1], [2], [15, 11], [5, 2], [1, 15], [4, 2], [5], [15, 15]];
 
 let cache;
 for (let i = 0; i < commands.length; i++) {
@@ -177,6 +170,6 @@ for (let i = 0; i < commands.length; i++) {
     case "put": cache.put(arg[0], arg[1]); break;
     case "get": result = cache.get(arg[0]); break;
   }
-  console.log(`${command} ${arg} = ${result}`);
+  console.log(`${command} ${arg} = ${result} | keys ${Object.keys(cache.keysPointerDict)}`);
 }
 

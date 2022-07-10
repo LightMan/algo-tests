@@ -65,7 +65,7 @@ class Heap {
     let curr = 0;
 
     // keep going till atleast left child is possible for current node
-    while (2 * curr + 1 < this.heap.length) {
+    while (this.leftChildPos(curr) < this.heap.length) {
       const leftIndex = this.leftChildPos(curr);
       const rightIndex = this.rightChildPos(curr);
       const minChildIndex = (rightIndex < this.heap.length && this.heapCompare(this.heap[rightIndex], this.heap[leftIndex])) ? rightIndex : leftIndex;
@@ -80,6 +80,32 @@ class Heap {
 
     // finally return the removed key
     return removedKey;
+  }
+
+  heapify() {
+    const last = Math.floor(this.heap.length / 2 - 1);
+    for (let i = 0; i <= last; i++) {
+      percolateDown(i);
+    }
+    return heap;
+  }
+
+  // follows pretty much the same logic as heappush, except minor modifications
+  percolateDown(index) {
+    let curr = index;
+    // keep going down till heap property is established
+    while (2 * curr + 1 < this.heap.length) {
+      const leftIndex = this.leftChildPos(curr);
+      const rightIndex = this.rightChildPos(curr);
+      const minChildIndex = (rightIndex < this.heap.length && this.heapCompare(this.heap[rightIndex], this.heap[leftIndex])) ? rightIndex : leftIndex;
+      if (this.heapCompare(this.heap[minChildIndex], this.heap[curr])) {
+        // quick swap, if smaller of two children is smaller than the parent (min-heap)
+        this.swap(minChildIndex, curr);
+        curr = minChildIndex;
+      } else {
+        break;
+      }
+    }
   }
 
 } module.exports = Heap;
