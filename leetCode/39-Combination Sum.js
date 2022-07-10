@@ -61,3 +61,32 @@ var combinationSum = function (candidates, target) {
 
   return solutions;
 };
+
+/* Another sol
+
+var combinationSum = function (candidates, target) {
+  const nums = candidates.sort((a, b) => a - b); // O(n*log(n))
+  const solutions = [];
+  nums.forEach((num, index) => dfs(index, 0, []));
+  return solutions;
+
+  function dfs(index, sum, sol) {
+    if (index >= nums.length) {
+      return;
+    }
+    const totalSum = sum + nums[index];
+    if (totalSum > target) {
+      return;
+    }
+    sol.push(nums[index]);
+    if (totalSum === target) {
+      solutions.push(sol);
+      return;
+    }
+    for (let i = index; i < nums.length; i++) {
+      dfs(i, totalSum, [...sol]);
+    }
+  }
+
+};
+*/
