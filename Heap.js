@@ -1,6 +1,7 @@
 class Heap {
   constructor(isMaxHeap) {
     this.heap = [];
+    this.values = {};
     this.isMax = isMaxHeap;
   }
 
@@ -32,9 +33,17 @@ class Heap {
     return this.heap.length > 0 ? this.heap[0] : undefined;
   }
 
-  push(newKey) {
+  get topValue() {
+    return values[this.top];
+  }
+
+  push(newKey, newValue) {
     // push the new key 
     this.heap.push(newKey);
+
+    if (newValue !== undefined) {
+      this.values[newKey] = newValue;
+    }
 
     // get the current index of pushed key
     let curr = this.heap.length - 1;
@@ -54,7 +63,7 @@ class Heap {
     }
   }
 
-  pop(heap) {
+  pop() {
     // swap root with last node
     const n = this.heap.length;
     this.swap(0, n - 1);
@@ -78,8 +87,17 @@ class Heap {
       }
     }
 
+    const value = this.values[removedKey];
+    if (value !== undefined) {
+      delete this.values[removedKey];
+      return [removedKey, value];
+    }
     // finally return the removed key
     return removedKey;
+  }
+
+  value(key) {
+    return this.values[key];
   }
 
   heapify() {
@@ -106,6 +124,14 @@ class Heap {
         break;
       }
     }
+  }
+
+  sort() {
+    const array = [];
+    while (this.length > 0) {
+      array.push(this.pop());
+    }
+    return array;
   }
 
 } module.exports = Heap;
