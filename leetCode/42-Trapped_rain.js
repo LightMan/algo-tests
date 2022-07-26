@@ -13,12 +13,49 @@ Example 2: Input: height = [4,2,0,3,2,5] Output: 9
  * @return {number}
  */
 var trap = function (height) {
-  const heightPositions = [];
-  let peakIndex = 0;
-  const peak = sortedHeights[peakIndex];
 
+  if (height.length <= 2) {
+    return 0;
+  }
 
-  return 10;
+  let totalWater = 0;
+  const maxIndex = getMaxIndex(height);
+  // console.log(`maxIndex ${maxIndex}`);
+  // From left to maxIndex
+  let index = 0;
+  let lastTopHeight = 0;
+  while (index < maxIndex) {
+    const curHeight = height[index];
+    totalWater += Math.max(lastTopHeight - curHeight, 0);
+    // console.log(`Index ${index} Total water is ${totalWater}`);
+    lastTopHeight = Math.max(lastTopHeight, curHeight);
+    index += 1;
+  }
+
+  // From right to maxIndex
+  index = height.length - 1;
+  lastTopHeight = 0;
+  while (index > maxIndex) {
+    const curHeight = height[index];
+    totalWater += Math.max(lastTopHeight - curHeight, 0);
+    // console.log(`Index ${index} Total water is ${totalWater}`);
+    lastTopHeight = Math.max(lastTopHeight, curHeight);
+    index -= 1;
+  }
+
+  return totalWater;
+
+  function getMaxIndex(height) {
+    let max = -Infinity;
+    let maxIndex = 0;
+    for (let i = 0; i < height.length; i++) {
+      if (height[i] > max) {
+        max = height[i];
+        maxIndex = i;
+      }
+    }
+    return maxIndex;
+  }
 };
 
 const test1 = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1];

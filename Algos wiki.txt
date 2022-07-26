@@ -1,0 +1,89 @@
+Dijsktra
+============
+- O( (nodes + edges)*log(nodes) ) (With binary heap priority queue)
+- Find the shortest path
+- Cannot be used with negative cycles, use Bellman Ford is there are negative cycles
+
+- Array distance[all nodes] = infinity, distances[start] = 0	
+	- Get all edges of the current node
+		- Each edge: distance[edge.dest] = Min(current distance + edge.distance, distance[edge.dest])
+			- If distance is decreased the parent[edge.dest] = currentNode
+	- Add node to visited
+	- Closest node = node with min distance of all distances of nodes NOT visited.
+	- no closest node? => finish
+	- else: Current Node = closest node
+
+Prim's MST
+==========
+- Time O(nlog(n) + O(e(log(n))) (priority queue and adjacent list)
+- Or Time O(n^2) for adjency matrix.
+
+- When building graph is not directed add both connections.
+- Add node to visited (visit is a set) (start with anyone)
+- Finished when visited count = num nodes;
+- Get all not visited neighbours from node and their distance.
+- Add all distances to a main min heap. (priority queue with distances and dest nodes)
+- Get the minimum dist (src could be different from current node) and set dest as current node.
+- Could have a parent list to set parents[dest] = src.
+- Could sum dist to total edges weights
+
+Kruskal's MST
+=============
+- Time O(elog(e)) Space O(n) ( parents + ranks + edges)
+- Sort all edges and get the one with the minimum distance
+- Get the minimum edge, edge cannot form a cycle (for example dest cannot be visited).
+- Finish when edges used = nodes - 1
+- To detect if a cycle is form Union - Find is used
+
+Union - Find
+============
+- Time O(log(n)) (with ranks and path compression)
+- Array of ranks. 4 nodes = [1,1,1,1]
+- Array of parents 4 nodes = [0,1,2,3] (each parent of his own)
+- For every edge: Get src and dst.
+- Find parents of src and dst: while (parent != node) node = parent[node]
+- (Meanwhile path compression with parent[n1] = parent[parent[n1]]
+- if same parents (p1 == p2) -> There is a cycle!!
+- else Union(p1, p2)
+	- Upgrade parent with higher rank (p1) rank[p1] += rank[p2]
+	- Parent p2 is p1 parents[p2] = p1
+
+
+Bellman Ford
+============
+- Complejidad O(nodes * edges).
+- Shortest path, worse than Dijkstra.
+- Used with negative cycles.
+
+	- distances[all nodes] = infinito, distances[start] = 0
+	- Iterate : nodes - 1. (5 nodes => 4 times)
+		- Iterate all nodes (no particular order)
+		- Each reachable node get minimum distance
+			- Get all parents and distance = parent distance + edge distance
+			- If distance is shorter than current, update distance
+
+	- Detect negative cycle: Repeat process again
+	 	- If a shorter distance is found, node distance is -infinity
+
+
+Heap (max or min)
+=================
+- Build heap is O(n) -> heapify O(log(n))
+- Read max or min O(1), pop or insert O(log(n))
+- Sort O(n*log(n)) Space 0, sort is in place.
+
+- Representation is an array.
+- Binary tree, parent is bigger (max) or smaller (min) than children.
+- Find children parent index i = left = (2i + 1) right = (2i + 2)
+- Find parent from children c = floor( (i - 1)/2 )
+- Insert node in the last position (next leaf pos) and move it up the tree comparing.
+- Pop top: - Read first element in array (root)
+		   - Move last element of array (last leaf), overwrite the top.
+		   - Iterative cycle to conform max/min with parent and children.
+- Sort the array: Pop top nodes times. 
+
+Tries
+=====
+- Store prefixes of word: TrieNode(children={h,a},false) 
+- Node: children{} = key is letters, value is a TrieNode, isWord = boolean
+- TrieNode(isWord = false, {h = TrieNode(isWord = true, {i}) } = store "hi"

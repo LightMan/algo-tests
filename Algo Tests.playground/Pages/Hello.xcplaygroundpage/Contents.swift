@@ -2,8 +2,21 @@
 
 import Foundation
 
-var greeting = "Hello, playground"
+class Solution {
+  func canPartition(_ nums: [Int]) -> Bool {
+      return dfs([], nums)
+  }
 
-debugPrint(greeting)
+  func dfs(_ arr1: [Int], _ arr2: [Int]) -> Bool {
+    return true
+  }
+  
+  func sumArray(_ arr: [Int]) -> Int {
+    return arr.reduce(0, { prev, curr in prev + curr })
+}
 
-//: [Next](@next)
+let sol = Solution();
+let result = sol.canPartition([1,5,11,5])
+sol.sumArray([1,2,3])
+print("Result is \(result)")
+

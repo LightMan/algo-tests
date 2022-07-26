@@ -7,7 +7,7 @@
 
 const charToNum = buildCharToNumDict();
 
-const solution = (phoneNumber: string): string[] => {
+const wordsInNumber = (phoneNumber: string): string[] => {
 
   const words = ["foo", "bar", "baz", "foobar", "emo", "cap", "car", "cat"];
   let solution: string[] = [];
@@ -34,4 +34,4 @@ function buildCharToNumDict(): Record<string, string> {
   return dict;
 }
 
-console.log(`Using 3662277 ${solution('3662277')}`);
+console.log(`Using 3662277 ${wordsInNumber('3662277')}`);
