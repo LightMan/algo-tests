@@ -110,21 +110,6 @@ var exist = function (board, word) {
     return -1;
   }
 
-  function nextLetterPossitions(letter, fromPos) {
-    // Search letter up, down, left and right
-    let positions = [];
-    const up = movePosition(fromPos, { x: 0, y: -1 });
-    const down = movePosition(fromPos, { x: 0, y: +1 });
-    const left = movePosition(fromPos, { x: -1, y: 0 });
-    const right = movePosition(fromPos, { x: +1, y: 0 });
-    [up, down, left, right].forEach(pos => {
-      if (pos && isLetterInPosition(letter, pos) && isPositionFree(pos)) {
-        positions.push(pos);
-      }
-    });
-    return positions;
-  }
-
   function movePosition(position, displacement) {
     if (!isPosInBoard(position)) return false;
     const newPos = { x: position.x + displacement.x, y: position.y + displacement.y };
