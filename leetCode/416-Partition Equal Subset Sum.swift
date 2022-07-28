@@ -2,41 +2,31 @@
 import Foundation
 
 class Solution {
-    var memo: [[[Int]]: Int] = [:]
-
     func canPartition(_ nums: [Int]) -> Bool {
-        let total = sumArray(nums)
-        if (total % 2 != 0) {
+        return dfs([], nums)
+    }
+
+    func dfs(_ left: [Int], _ right: [Int]) -> Bool {
+        // print("Comparing \(left) with \(right)")
+        if sumArray(left) == sumArray(right) {
+            // print("Found with \(left) == \(right)")
+            return true
+        }
+
+        if right.count == 0 {
             return false
         }
-        let mid = total / 2        
-        var numsCount : [Int: Int] = [:]
-        nums.forEach( { numsCount[$0] = (numsCount[$0] ?? 0) + 1})
-        var subSuccess = 0
-        
-        var dp = Array<Int>(repeating: 0, count: numsCount.count)
-        var index = 0
-        for (number, repeated) in numsCount.enumerated() {
-            print("Number \(number) repeated \(repeated)")
-            if mid - number < 0 {
-                return false
-            }
-            if mid == number {
-                subSuccess += 1
-                if subSuccess == 2 {
-                    return true
-                }
-                dp[number] = -1                
-            }
 
-            
-
-            index += 1
+        for (index, number) in right.enumerated() {
+            var rightCopy = Array(right)
+            rightCopy.remove(at: index)
+            if dfs(Array(left + [number]), rightCopy) {
+                return true
+            }
         }
-
-        return true
+        return false
     }
-    
+
     func sumArray(_ arr: [Int]) -> Int {
         return arr.reduce(0) { $0 + $1 }
     }
