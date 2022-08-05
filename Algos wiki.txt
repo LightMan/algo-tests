@@ -87,3 +87,10 @@ Tries
 - Store prefixes of word: TrieNode(children={h,a},false) 
 - Node: children{} = key is letters, value is a TrieNode, isWord = boolean
 - TrieNode(isWord = false, {h = TrieNode(isWord = true, {i}) } = store "hi"
+
+Knapsack
+========
+- Combine elements to reach a maximum
+ - 0-1 Knapsack (Bounded, each element only can be used once. Unbounded, an element can be used multiple times.
+ 
+

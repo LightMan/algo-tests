@@ -41,8 +41,8 @@ Follow up:
 // Add 8. Min = 4 Max 8 
 // Add 10 . Min = 4 Max 8
 
-const Heap = require('./Heap');
-
+// const Heap = require('./HeapOnlyNumbers');
+import Heap from '../HeapOnlyNumbers.js';
 class MedianFinder {
 
   constructor() {

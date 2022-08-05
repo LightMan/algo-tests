@@ -37,31 +37,106 @@ Constraints:
 
 */
 
-const Heap = require('./Heap');
+import Heap from '../HeapObjects.js';
+//const Heap = require('../HeapObjects.js');
 
-function leastInterval(tasks, n) {
+/**
+ * @param {character[]} tasks
+ * @param {number} n
+ * @return {number}
+ */
 
-  const tasksHeap = new Heap(true);
-  addTasksToHeap(countRepeatedTasks());
-  console.log(`heap is ${tasksHeap.heap}`);
+var leastIntervalMath = function (tasks, wait) {
+  // Math solution
 
-  // First count the tasks: if tasksQueued['A'] = 3 => there are three As
-  function countRepeatedTasks() {
-    const tasksQueued = {};
+  // Get the max repeated count, and how many times is repeated 
+  // ["A","A","A","B","B","B"] Max repeated is 2 and is repated for A and B = 2
+
+  const tasksDict = {}; // Space O(n)
+  let highest = 0;
+  let highestRepeatedTasks = [];
+  // O(n) iteration
+  tasks.forEach(task => {
+    tasksDict[task] = tasksDict[task] + 1 || 1;
+    if (highest < tasksDict[task]) {
+      highestRepeatedTasks = [task];
+      highest = tasksDict[task];
+    } else if (highest === tasksDict[task]) {
+      highestRepeatedTasks.push(task);
+    }
+  });
+  const highestRepeated = highestRepeatedTasks.length;
+  const output = highest * (1 + wait) - wait + highestRepeated - 1;
+  return Math.max(tasks.length, output);
+};
+
+var leastIntervalHeap = function (tasks, wait) {
+
+  {
+    // letters are the keys
+    if (wait === 0) {
+      return tasks.length;
+    }
+
+    // First count the tasks: if tasksDict['A'] = 3 => there are three As
+    const tasksDict = {}; // Space O(n)
+    // O(n) iteration
     tasks.forEach(task => {
-      tasksQueued[task] = tasksQueued[task] + 1 || 1;
+      if (tasksDict[task] === undefined) {
+        tasksDict[task] = { key: task, stepIn: 1, count: 0 };
+      }
+      tasksDict[task].count += 1;
     });
-    return tasksQueued;
+
+    const tasksHeap = createHeap();
+    populateHeap(tasksHeap, tasksDict);
+
+    let step = 1;
+    let nextTask = tasksHeap.top();
+    let tasksQueue = [];
+    let outputStr = [];
+    while (tasksQueue.length > 0 || nextTask !== undefined) {
+
+      //console.log(`step: ${step} next task ${JSON.stringify(nextTask, null, ' ')}  queue ${JSON.stringify(tasksQueue, null, ' ')}`);
+
+      if (nextTask && nextTask.stepIn <= step) {
+        tasksHeap.pop();
+        outputStr.push(nextTask.key);
+        if (nextTask.count > 1) {
+          // Not finished, is added to the waiting queue
+          nextTask.count -= 1;
+          nextTask.stepIn = step + wait + 1;
+          tasksQueue.push(nextTask);
+        }
+      } else {
+        outputStr.push('Idle');
+      }
+      console.log(`output [${outputStr}]`);
+      step += 1;
+      while (tasksQueue[0] && tasksQueue[0].stepIn === step) {
+        tasksHeap.add(tasksQueue.shift());
+      }
+      nextTask = tasksHeap.top();
+    }
+
+    return step - 1;
   }
 
-  function addTasksToHeap(tasksQueued) {
-    for (const [letter, counted] of Object.entries(tasksQueued)) {
-      console.log(`Task ${letter} repeated ${counted} times`);
-      tasksHeap.push(counted);
+  function createHeap() {
+    return new Heap((task1, task2) => {
+      return task1.count >= task2.count;
+    });
+  }
+
+  function populateHeap(tasksHeap, tasksDict) {
+    for (const key in tasksDict) {
+      tasksHeap.add(tasksDict[key]);
     }
   }
+
 };
 
 const tasks = ["A", "A", "A", "B", "B", "C"];
 const waitTime = 2;
-console.log(`Time minimum ${leastInterval(tasks, waitTime)}`);
+console.log(`Time minimum ${leastIntervalHeap(tasks, waitTime)}`);
+console.log(`Time minimum ${leastIntervalMath(tasks, waitTime)}`);

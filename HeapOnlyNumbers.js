@@ -134,5 +134,4 @@ class Heap {
     return array;
   }
 
-} module.exports = Heap;
-
+} export default Heap;

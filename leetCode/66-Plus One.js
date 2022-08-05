@@ -51,3 +51,5 @@ var plusOne = function (digits) {
   }
   return sol;
 };
+
+console.log(plusOne([1, 2, 3]));
