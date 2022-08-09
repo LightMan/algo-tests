@@ -48,8 +48,8 @@ var mergeKLists = function (lists) {
   }
 
   const pointers = Array(lists.length).fill(0);
-  const mainHeap = new MinPriorityQueue((val) => val.val);
-  // const mainHeap = new MinPriorityQueue({ compare: (p1, p2) => p1.val - p2.val });
+  const mainHeap = new MinPriorityQueue({ compare: (p1, p2) => p1.val - p2.val });
+  mainHeap.dequeue();
   populateMainHeap();
   let mainList;
   let mainListLast;

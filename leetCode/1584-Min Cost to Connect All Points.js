@@ -81,8 +81,7 @@ var minCostConnectPoints = function (points) {
 
 
   function addDistancesFrom(pointIndex, distances) {
-    const minHeap = new MinPriorityQueue((point) => point.dist);
-    // const minHeap = new MinPriorityQueue({ compare: (p1, p2) => p1.dist - p2.dist });
+    const minHeap = new MinPriorityQueue({ compare: (p1, p2) => p1.dist - p2.dist });
     for (let i = 0; i < points.length; i++) {
       if (visited[i] !== true && pointIndex != i) {
         const dist = manhattanDist(points[pointIndex], points[i]);
