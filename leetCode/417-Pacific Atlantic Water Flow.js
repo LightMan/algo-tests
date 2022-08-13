@@ -1,89 +1,160 @@
-/*
-417. Pacific Atlantic Water Flow
-Medium https://leetcode.com/problems/pacific-atlantic-water-flow/
-
-There is an m x n rectangular island that borders both the Pacific Ocean and Atlantic Ocean. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.
-The island is partitioned into a grid of square cells. You are given an m x n integer matrix heights where heights[r][c] represents the height above sea level of the cell at coordinate (r, c).
-The island receives a lot of rain, and the rain water can flow to neighboring cells directly north, south, east, and west if the neighboring cell's height is less than or equal to the current cell's height. Water can flow from any cell adjacent to an ocean into the ocean.
-Return a 2D list of grid coordinates result where result[i] = [ri, ci] denotes that rain water can flow from cell (ri, ci) to both the Pacific and Atlantic oceans.
-
-Example 1:
-Input: heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]] 
-Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
-Example 2: Input: heights = [[2,1],[1,2]] Output: [[0,0],[0,1],[1,0],[1,1]]
-
-
-Constraints:
-    m == heights.length
-    n == heights[r].length
-    1 <= m, n <= 200
-    0 <= heights[r][c] <= 105
-*/
-
-/**
- * @param {number[][]} heights
- * @return {number[][]}
- */
 var pacificAtlantic = function (heights) {
   const height = heights.length;
   const width = heights[0].length;
-  const None = 0, Atlantic = 1, Pacific = 2; Both = 3;
-  const gridInfo = new Array(height).fill(new Array(width));
+  const None = 0, Atlantic = 1, Pacific = 2, Both = 3, Unknown = 4;
+  const gridInfo = {};
+  const bothOceans = [];
+  let ops = 0;
 
-  dfs(0, 0);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      exploreIsland(y, x, heights[y][x], {});
+    }
+  }
 
-  function dfs(y, x, visiting = {}) {
-    // if (gridInfo[y][x] !== undefined) {
-    //   return gridInfo[y][x];
-    // }
+  console.log(`Ops ${ops}`);
+  return bothOceans;
 
-    if (toOcean(y, x) !== None) {
-      return toOcean(y, x);
+  function exploreIsland(y, x, previousHeight, visiting) {
+    ops++;
+    if (y < 0 || x < 0) {
+      return Pacific;
+    } else if (y >= height || x >= width) {
+      return Atlantic;
     }
 
     const key = `${y},${x}`;
     if (visiting[key]) {
-      return None;
+      return Unknown;
     }
 
+    const currentHeight = heights[y][x];
+    if (previousHeight < currentHeight) {
+      return None; // Cannot go from lower to higher, or the cell is in the tree
+    }
     visiting[key] = true;
-    // Visit left
-    let toOcean = saveOceanResult(y, x, dfs(y, x - 1, visiting));
-    if (toOcean === Both) {
+
+    let cellInfo = gridInfo[key];
+    if (cellInfo === undefined) {
+      cellInfo = { right: Unknown, down: Unknown, left: Unknown, up: Unknown };
+    }
+
+    cellInfo.right = cellInfo.right === Unknown ? exploreIsland(y, x + 1, currentHeight, visiting) : cellInfo.right;
+    cellInfo.down = cellInfo.down === Unknown ? exploreIsland(y + 1, x, currentHeight, visiting) : cellInfo.down;
+    cellInfo.left = cellInfo.left === Unknown ? exploreIsland(y, x - 1, currentHeight, visiting) : cellInfo.left;
+    cellInfo.up = cellInfo.up === Unknown ? exploreIsland(y - 1, x, currentHeight, visiting) : cellInfo.up;
+    gridInfo[key] = cellInfo;
+    return checkOcean(y, x, cellInfo);
+  }
+
+  function checkOcean(y, x, cell) {
+    const pacific = [cell.right, cell.down, cell.left, cell.up].indexOf(Pacific) !== -1;
+    const atlantic = [cell.right, cell.down, cell.left, cell.up].indexOf(Atlantic) !== -1;
+    const both = [cell.right, cell.down, cell.left, cell.up].indexOf(Both) !== -1;
+    if ((pacific && atlantic) || both) {
+      bothOceans.push([y, x]);
       return Both;
     }
-  }
-
-  function saveOceanResult(y, x, oceanResult) {
-    if (toOcean !== None) {
-      gridInfo[y][x] = gridInfo[y][x] !== undefined ? gridInfo[y][x] | toOcean : toOcean;
-    }
-    return toOcean;
-  }
-
-
-  function toOcean(y, x) {
-    if (x >= width || y >= height) {
-      return Atlantic;
-    }
-    if (x < 0 || y < 0) {
+    if (pacific) {
       return Pacific;
+    } else if (atlantic) {
+      return Atlantic;
     }
     return None;
   }
+};
 
+
+const tests = [];
+tests.push({ heights: [[1, 1, 8], [1, 8, 1], [8, 1, 1]], expected: [[0, 2], [1, 1], [2, 0]] });
+tests.push({ heights: [[1, 1, 1], [1, 8, 1], [1, 1, 1]], expected: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]] });
+tests.push({ heights: [[2, 1], [1, 2]], expected: [[0, 0], [0, 1], [1, 0], [1, 1]] });
+tests.push({ heights: [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]], expected: [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] });
+tests.push({ heights: [[10, 10, 10], [10, 1, 10], [10, 10, 10]], expected: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]] });
+tests.forEach((test, index) => {
+  console.log(`Water results for test\n index ${index}: [${pacificAtlantic(test.heights).join('|')}] \n expected [${test.expected.join('|')}]`);
+});
+
+/*
+  This one works withour memoization
+var pacificAtlantic = function (heights) {
+  const height = heights.length;
+  const width = heights[0].length;
+  const None = 0, Atlantic = 1, Pacific = 2, Both = 3, Unknown = -1;
+  const gridInfo = {};
+  const bothOceans = [];
+  let ops = 0;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      exploreIsland(y, x, heights[y][x], {});
+    }
+  }
+
+  console.log(`Ops ${ops}`);
+  return bothOceans;
+
+  function exploreIsland(y, x, previousHeight, visiting) {
+    ops++;
+    if (y < 0 || x < 0) {
+      return Pacific;
+    } else if (y >= height || x >= width) {
+      return Atlantic;
+    }
+
+    const key = `${y},${x}`;
+    if (visiting[key]) {
+      return Unknown;
+    }
+
+    const currentHeight = heights[y][x];
+    if (previousHeight < currentHeight) {
+      return None; // Cannot go from lower to higher, or the cell is in the tree
+    }
+    let cellInfo = gridInfo[key];
+    if (cellInfo === undefined) {
+      cellInfo = { right: Unknown, down: Unknown, left: Unknown, up: Unknown };
+    }
+    visiting[key] = true;
+
+    cellInfo.right = exploreIsland(y, x + 1, currentHeight, visiting);
+    cellInfo.down = exploreIsland(y + 1, x, currentHeight, visiting);
+    cellInfo.left = exploreIsland(y, x - 1, currentHeight, visiting);
+    cellInfo.up = exploreIsland(y - 1, x, currentHeight, visiting);
+
+    // cellInfo.right = cellInfo.right === Unknown ? exploreIsland(y, x + 1, currentHeight, visiting) : cellInfo.right;
+    // cellInfo.down = cellInfo.down === Unknown ? exploreIsland(y + 1, x, currentHeight, visiting) : cellInfo.down;
+    // cellInfo.left = cellInfo.left === Unknown ? exploreIsland(y, x - 1, currentHeight, visiting) : cellInfo.left;
+    // cellInfo.up = cellInfo.up === Unknown ? exploreIsland(y - 1, x, currentHeight, visiting) : cellInfo.up;
+    gridInfo[key] = cellInfo;
+    return checkOcean(y, x, cellInfo);
+  }
+
+  function checkOcean(y, x, cell) {
+    const pacific = [cell.right, cell.down, cell.left, cell.up].indexOf(Pacific) !== -1;
+    const atlantic = [cell.right, cell.down, cell.left, cell.up].indexOf(Atlantic) !== -1;
+    const both = [cell.right, cell.down, cell.left, cell.up].indexOf(Both) !== -1;
+    if ((pacific && atlantic) || both) {
+      bothOceans.push([y, x]);
+      return Both;
+    }
+    if (pacific) {
+      return Pacific;
+    } else if (atlantic) {
+      return Atlantic;
+    }
+    return None;
+  }
 };
 
 const tests = [];
-tests.push({
-  heights: [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]], expected: [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]
+tests.push({ heights: [[1, 1, 8], [1, 8, 1], [8, 1, 1]], expected: [[0, 2], [1, 1], [2, 0]] });
+tests.push({ heights: [[1, 1, 1], [1, 8, 1], [1, 1, 1]], expected: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]] });
+tests.push({ heights: [[2, 1], [1, 2]], expected: [[0, 0], [0, 1], [1, 0], [1, 1]] });
+tests.push({ heights: [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]], expected: [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] });
+tests.push({ heights: [[10, 10, 10], [10, 1, 10], [10, 10, 10]], expected: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]] });
+tests.forEach((test, index) => {
+  console.log(`Water results for test\n index ${index}: [${pacificAtlantic(test.heights).join('|')}] \n expected [${test.expected.join('|')}]`);
 });
 
-function printArray(array) {
-  return array.reduce((prev, cur) => `${prev},[${cur}]`, "[ ") + " ]";
-}
-
-tests.forEach(test => {
-  const sol = pacificAtlantic(test.heights);
-  console.log(`Raining on ${test.heights}\n\tsol=${printArray(sol)}\n\texp=${printArray(test.expected)}`);
-});
+*/
