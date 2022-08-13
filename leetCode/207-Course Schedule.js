@@ -27,52 +27,32 @@ var canFinish = function (numCourses, prerequisites) {
     return true;
   }
   // Build the graph
-  const isRoot = {};
-  const graph = {};
+  const prereqs = {};
   for (const [second, first] of prerequisites) {
-    if (second === first) {
+    // Build graph with prereq for all nodes
+    if (prereqs[first] === undefined) prereqs[first] = [];
+    if (prereqs[second] === undefined) prereqs[second] = [];
+    prereqs[second].push(first);
+  }
+  for (const course in prereqs) {
+    if (!canBeFinished(Number.parseInt(course), new Set())) {
       return false;
     }
-    if (isRoot[first] === undefined) {
-      isRoot[first] = true;
-    }
-    isRoot[second] = false;
+  }
+  return true;
 
-    // Build graph
-    if (graph[first] === undefined) {
-      graph[first] = [];
-    }
-    graph[first].push(second);
-  }
-  const nodesParsed = Object.keys(isRoot);
-  const roots = nodesParsed.filter(key => isRoot[key]);
-  if (roots.length === 0) {
-    return false;
-  }
-  let visited = 0;
-  for (const root of roots) {
-    if (!canBeFinished(Number.parseInt(root), new Set())) {
+  function canBeFinished(course, visited) {
+    if (visited.has(course)) {
       return false;
     }
-  }
-  return visited >= nodesParsed.length;
-
-  function canBeFinished(node, previous, finished = {}) {
-    visited += 1;
-    if (previous.has(node)) {
-      return false;
-    }
-    if (finished[node] || graph[node] === undefined) {
-      return true;
-    }
-    previous.add(node);
-    for (const child of graph[node]) {
-      if (!canBeFinished(child, previous, canBeFinished)) {
+    visited.add(course);
+    while (prereqs[course].length > 0) {
+      const prereq = prereqs[course].pop();
+      if (!canBeFinished(prereq, visited)) {
         return false;
       }
     }
-    previous.delete(node);
-    finished[node] = true;
+    visited.delete(course);
     return true;
   }
 };
