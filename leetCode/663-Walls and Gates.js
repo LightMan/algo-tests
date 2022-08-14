@@ -30,11 +30,7 @@ Output: [[0,-1],[1,2]]
 
 export class Solution {
 
-  distances = {};
-  gates = []; // Array of gates coordinates
-
-  WALL = -1;
-  EMPTY = Number.MAX_VALUE;
+  EMPTY = (2 ** 31) - 1;
   GATE = 0;
 
   /**
@@ -46,22 +42,66 @@ export class Solution {
       return [];
     }
 
-    gates = parseGates(rooms);
+    this.gates = []; // Array of gates coordinates
+    this.rooms = rooms;
+    this.height = rooms.length;
+    this.width = this.rooms[0].length;
+    if (this.width === 0) {
+      return [];
+    }
 
-
+    this.parseRooms();
+    this.nextStepBFS(this.gates);
+    return this.rooms;
   }
 
-  parseGates(rooms) {
-    rooms.forEach((room, y) => {
-      room.forEach((square, x) => {
-        if (square === GATE) {
-          this.gates.push([x, y]);
+  nextStepBFS(startingRooms) {
+    while (startingRooms.length > 0) {
+      const nextStartingRooms = [];
+      startingRooms.forEach(([y, x]) => {
+        const previousDistance = this.rooms[y][x];
+        this.checkRoom(y, x + 1, previousDistance, nextStartingRooms); // Right
+        this.checkRoom(y, x - 1, previousDistance, nextStartingRooms); // Left
+        this.checkRoom(y + 1, x, previousDistance, nextStartingRooms); // Down
+        this.checkRoom(y - 1, x, previousDistance, nextStartingRooms); // Up
+      });
+      startingRooms = nextStartingRooms;
+    }
+  }
+
+  checkRoom(y, x, prevDistance, nextStartingRooms) {
+    if (!this.isEmpty(y, x)) {
+      return;
+    }
+    this.rooms[y][x] = prevDistance + 1;
+    nextStartingRooms.push([y, x]);
+  }
+
+  isEmpty(y, x) {
+    if (!(x >= 0 && x < this.width && y >= 0 && y < this.height)) {
+      return false;
+    }
+    return this.rooms[y][x] === this.EMPTY;
+  }
+
+  parseRooms() {
+    this.rooms.forEach((row, y) => {
+      row.forEach((room, x) => {
+        if (room === this.GATE) {
+          this.gates.push([y, x]);
         }
       });
     });
   }
-
-  bfs() {
-
-  }
 }
+
+const tests = [];
+tests.push({ rooms: [[0, -1], [2147483647, 2147483647]], expected: [[0, -1], [1, 2]] });
+tests.push({
+  rooms: [[2147483647, -1, 0, 2147483647], [2147483647, 2147483647, 2147483647, -1], [2147483647, -1, 2147483647, -1], [0, -1, 2147483647, 2147483647]],
+  expected: [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]]
+});
+const solution = new Solution();
+tests.forEach((test, index) => {
+  console.log(`Rooms ${index}\n\toutput: ${solution.wallsAndGates(test.rooms)}\n\texpect: ${test.expected}`);
+});
