@@ -35,120 +35,73 @@ Constraints:
     At most 2 * 105 calls will be made to get and put.
 */
 
-class Node {
-  constructor() {
-    this.key = undefined;
-    this.value = undefined;
-    this.prev = null;
-    this.next = null;
-  }
-}
-
 /**
  * @param {number} capacity
  */
-class LRUCache {
+var LRUCache = function (capacity) {
+  this.capacityLeft = capacity;
+  this.keysHash = new WeakMap();
+  this.beforeFirst = { key: 'PREV' };
+  this.afterLast = { prev: this.beforeFirst, key: 'LST' };
+  this.beforeFirst.next = this.afterLast;
+};
 
-  constructor(capacity) {
-    this.capacityLeft = capacity;
-    this.keysPointerDict = [];
-    this.mostUsed = null;
-    this.leastUsed = null;
+/** 
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function (key) {
+  const node = this.keysHash[key];
+  if (node === undefined) {
+    return -1;
+  }
+  this.__dettach(node);
+  this.__toFirst(node);
+  return node.value;
+};
+
+/** 
+ * @param {number} key 
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function (key, value) {
+  let node = this.keysHash[key];
+
+  if (node === undefined) {
+    if (this.capacityLeft === 0) {
+      // Reuse the last node
+      node = this.afterLast.prev;
+      delete this.keysHash[node.key]; // Delete last node from the hash
+    } else {
+      // There is free space in the cache
+      this.capacityLeft -= 1;
+      node = {};
+    }
   }
 
-  /** 
-   * @param {number} key
-   * @return {number}
-   */
-  get(key) {
-    const node = this.keysPointerDict[key];
-    if (!node) {
-      return -1;       // Node is not in the cache
-    }
-    this.setAsMRU(node);
+  // Update or set value and key
+  node.key = key;
+  node.value = value;
+  this.keysHash[key] = node;
+  this.__dettach(node);
+  this.__toFirst(node);
+};
 
-    return node.value;
-  }
+LRUCache.prototype.__dettach = function (node) {
+  if (!node.prev || !node.next) return;
+  // Dettach from list
+  node.prev.next = node.next;
+  node.next.prev = node.prev;
+};
 
-  /** 
-   * @param {number} key 
-   * @param {number} value
-   * @return {void}
-   */
-  put(key, value) {
-    let node = this.keysPointerDict[key];
-    if (!node) {
-      // Node is not in the list, add it
-      if (this.capacityLeft === 0) {
-        node = this.removeLRU(); // Cache is full, reuse the last one
-      } else {
-        node = this.createNode();
-      }
-    }
-    this.updateNodeAndHash(key, value, node);
-    this.setAsMRU(node);
-  }
-
-  // Update hashmap and node value
-  updateNodeAndHash(key, value, node) {
-    node.key = key;
-    node.value = value;
-    this.keysPointerDict[key] = node;
-  }
-
-  setAsMRU(node) {
-    if (this.mostUsed === null) {
-      this.mostUsed = node;
-    }
-    if (this.leastUsed === null) {
-      this.leastUsed = node;
-    }
-
-    // Update the MRU
-    if (this.mostUsed === node) {
-      return;
-    }
-
-    // This was the last node, not anymore
-    if (node === this.leastUsed) {
-      this.leastUsed = node.prev; // we know that node is not the mostUsed at this point
-    }
-
-    // Detach the node form the list
-    if (node.prev) node.prev.next = node.next;
-    if (node.next) node.next.prev = node.prev;
-
-    // Set it as most used
-    this.mostUsed.prev = node;
-    node.next = this.mostUsed;
-    this.mostUsed = node;
-  }
-
-  // Get the LRU node and return it updating the list to the next least used
-  removeLRU() {
-    const nodeLRU = this.leastUsed;
-    const beforeLeast = nodeLRU.prev;
-    if (beforeLeast) beforeLeast.next = null;
-    nodeLRU.prev = null;
-    this.leastUsed = beforeLeast;
-    delete this.keysPointerDict[nodeLRU.key];
-    return nodeLRU;
-  }
-
-  // The size of the list is below the limit
-  createNode() {
-    this.capacityLeft -= 1;
-    // New node next is the first in the list
-    const node = new Node();
-
-    if (this.leastUsed === null) {
-      // List is empty, first node added
-      this.mostUsed = node;
-      this.leastUsed = node;
-    }
-    return node;
-  }
-}
+LRUCache.prototype.__toFirst = function (node) {
+  // Moved or inserted in first place
+  this.beforeFirst.next.prev = node;
+  node.next = this.beforeFirst.next;
+  node.prev = this.beforeFirst;
+  this.beforeFirst.next = node;
+};
 
 /** 
  * Your LRUCache object will be instantiated and called as such:
@@ -170,6 +123,6 @@ for (let i = 0; i < commands.length; i++) {
     case "put": cache.put(arg[0], arg[1]); break;
     case "get": result = cache.get(arg[0]); break;
   }
-  console.log(`${command} ${arg} = ${result} | keys ${Object.keys(cache.keysPointerDict)}`);
+  console.log(`${command} ${arg} = ${result} | keys ${Object.keys(cache.keysHash)}`);
 }
 
