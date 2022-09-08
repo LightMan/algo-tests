@@ -12,6 +12,14 @@
         "<node_internals>/**"
       ],
       "type": "node"
+    },
+    {
+      "name": "Debug Swift",
+      "type": "lldb",
+      "request": "launch",
+      "program": "\"${file}\"",
+      "args": [],
+      "preLaunchTask": "swift: Build Debug Algo-Tests"
     }
   ]
 }

@@ -15,7 +15,7 @@
    Follow up: Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
  */
 
-class Solution {
+class Solution347 {
   func topKFrequent(_ nums: [Int], _ k: Int) -> [Int] {
     var numberOccurrences: [Int: Int] = [:]
     // O(n)
@@ -48,9 +48,11 @@ class Solution {
     }
     return solution
   }
-}
 
-let sol = Solution()
-let test = [1, 1, 1, 2, 2, 3]
-let k = 2
-print("Most \(k) repeated in \(test) are \(sol.topKFrequent(test, k))")
+  func test() {
+    let sol = Solution347()
+    let test = [1, 1, 1, 2, 2, 3]
+    let k = 2
+    print("Most \(k) repeated in \(test) are \(sol.topKFrequent(test, k))")
+  }
+}

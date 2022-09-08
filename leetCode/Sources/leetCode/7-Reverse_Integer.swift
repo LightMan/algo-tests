@@ -9,7 +9,7 @@
  */
 import Foundation
 
-class Solution {
+class Solution7 {
   func reverse(_ x: Int) -> Int {
     let digits = numberOfDigits(x)
     // print("Nun \(x) has \(digits) digits")
@@ -58,15 +58,17 @@ class Solution {
     } while num != 0
     return digits
   }
-}
 
-let sol = Solution()
-let test1 = 123
-let test2 = -123
-let test3 = 120
-let test4 = 1_534_236_469
-let test5 = -1_534_236_469
-let tests = [test4, test5]
-for test in tests {
-  print("Sol reverse es \(sol.reverse(test))")
+  func test() {
+    let sol = Solution7()
+    var tests: [Int] = []
+    tests.append(123)
+    tests.append(-123)
+    tests.append(120)
+    tests.append(1_534_236_469)
+    tests.append(-1_534_236_469)
+    for test in tests {
+      print("Sol reverse es \(sol.reverse(test))")
+    }
+  }
 }
