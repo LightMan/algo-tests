@@ -1,7 +1,7 @@
 import XCTest
 import class Foundation.Bundle
 
-final class leetCodeTests: XCTestCase {
+final class vscodetestTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
@@ -12,10 +12,7 @@ final class leetCodeTests: XCTestCase {
             return
         }
 
-        // Mac Catalyst won't have `Process`, but it is supported for executables.
-        #if !targetEnvironment(macCatalyst)
-
-        let fooBinary = productsDirectory.appendingPathComponent("leetCode")
+        let fooBinary = productsDirectory.appendingPathComponent("vscodetest")
 
         let process = Process()
         process.executableURL = fooBinary
@@ -30,7 +27,6 @@ final class leetCodeTests: XCTestCase {
         let output = String(data: data, encoding: .utf8)
 
         XCTAssertEqual(output, "Hello, world!\n")
-        #endif
     }
 
     /// Returns path to the built products directory.
@@ -44,4 +40,8 @@ final class leetCodeTests: XCTestCase {
         return Bundle.main.bundleURL
       #endif
     }
+
+    static var allTests = [
+        ("testExample", testExample),
+    ]
 }
