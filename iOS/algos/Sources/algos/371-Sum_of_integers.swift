@@ -22,18 +22,18 @@ enum BitOperationError: Error {
 }
 
 extension IntBit {
-  func bit(atPos pos: Int) throws -> Bit {
+  func bit(atPos pos: Int16) throws -> Bit {
     if pos < 0 || pos > 15 {
       throw BitOperationError.InvalidPosition
     }
-    let mask: IntBit = 1 << (pos + 1)
+    let mask: IntBit = 1 << (pos + IntBit(1))
     return (self & mask) != 0 ? Bit.one : Bit.zero
   }
 }
 
 func test371() {
   let val: IntBit = 0b0100
-  let pos = 1
+  let pos = Int16(1)
   do {
     try print("Bit at pos \(1) of \(String(val, radix: 2)) is = \(val.bit(atPos: pos))")
   } catch {

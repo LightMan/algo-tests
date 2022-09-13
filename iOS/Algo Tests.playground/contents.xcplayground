@@ -3,5 +3,6 @@
     <pages>
         <page name='Hello'/>
         <page name='Binary Tree'/>
+        <page name='Munchausen'/>
     </pages>
 </playground>

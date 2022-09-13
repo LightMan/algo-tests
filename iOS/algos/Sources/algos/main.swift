@@ -1,3 +1,1 @@
-
-let sol7 = Solution7()
-sol7.test()
+Solution7().test()

@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "swift",
+      "args": [
+        "build",
+        "--build-tests"
+      ],
+      "cwd": "/Users/djorge/Projects/algo-tests/iOS/algos",
+      "problemMatcher": [
+        "$swiftc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "swift: Build Debug algos",
+      "detail": "swift build --build-tests"
+    }
+  ]
+}

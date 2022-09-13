@@ -16,11 +16,10 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Release vscodetest",
-      "program": "${workspaceFolder:vscodetest}/.build/release/algos",
+      "name": "Release algos",
+      "program": "${workspaceFolder:algos}/.build/release/algos",
       "args": [],
       "cwd": "${workspaceFolder:algos}",
       "preLaunchTask": "swift: Build Release algos"
-    }
-  ]
-}
+    ]
+  }

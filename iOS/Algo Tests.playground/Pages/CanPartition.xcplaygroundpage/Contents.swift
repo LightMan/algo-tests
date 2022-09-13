@@ -3,6 +3,13 @@
 import Foundation
 
 class Solution {
+  static func test() {
+    let sol = Solution()
+    let result = sol.canPartition([1,5,11,5])
+    sol.sumArray([1,2,3])
+    print("Result is \(result)")
+  }
+  
   func canPartition(_ nums: [Int]) -> Bool {
       return dfs([], nums)
   }
@@ -13,10 +20,7 @@ class Solution {
   
   func sumArray(_ arr: [Int]) -> Int {
     return arr.reduce(0, { prev, curr in prev + curr })
+  }
 }
 
-let sol = Solution();
-let result = sol.canPartition([1,5,11,5])
-sol.sumArray([1,2,3])
-print("Result is \(result)")
-
+Solution.test()
