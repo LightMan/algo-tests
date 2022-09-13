@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug algos",
+      "program": "${workspaceFolder:algos}/.build/debug/algos",
+      "args": [],
+      "cwd": "${workspaceFolder:algos}",
+      "preLaunchTask": "swift: Build Debug algos"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Release vscodetest",
+      "program": "${workspaceFolder:vscodetest}/.build/release/algos",
+      "args": [],
+      "cwd": "${workspaceFolder:algos}",
+      "preLaunchTask": "swift: Build Release algos"
+    }
+  ]
+}
